@@ -25,7 +25,7 @@ void main( void )
 	// R.x, R.y, R.z
 	// NOTE: this can be done by 2 cases and 3 subcases (see below)
 	// but additional cases may be added (full points may not be given in this case)
-	
+
 	
 	// 3d vector h represents the cartesian coordnates 
 	// of the intersection with a unit cube face 	
@@ -34,22 +34,29 @@ void main( void )
 	
 	bool case1,case2;
 	bool subcase1, subcase2, subcase3;
+
+	case1 = (abs(R.x) >= abs(R.y)) && (abs(R.x) >= abs(R.z));
+	case2 = (abs(R.y) >= abs(R.z));
+
+	subcase1 = (R.x >= 0);
+	subcase2 = (R.y >= 0);
+	subcase3 = (R.z >= 0);
 	
 	if (case1) {
-			vec3 h;
-			uv = vec2(0,0);
-			if (subcase1){ st0=vec2(0,0); st1=vec2( 0,0); offset=vec2(0,0);} 
-			else 		{ st0=vec2(0,0); st1=vec2( 0,0); offset=vec2(0,0);}
+			vec3 h = R/abs(R.x);
+			uv = vec2(h.y, h.z);
+			if (subcase1){ st0=vec2(0,1); st1=vec2(1,0); offset=vec2(5,3);} 
+			else 		{ st0=vec2(0,1); st1=vec2( -1,0); offset=vec2(1,3);}
 	} else if (case2) {
-			vec3 h;
-			uv = vec2(0,0);
-			if (subcase2){ st0=vec2(0,0); st1=vec2( 0,0); offset=vec2(0,0);}
-			else		{ st0=vec2(0,0); st1=vec2( 0,0); offset=vec2(0,0); }
+			vec3 h = R/abs(R.y);
+			uv = vec2(h.x, h.z);
+			if (subcase2){ st0=vec2(1,0); st1=vec2( 0,1); offset=vec2(3,5);}
+			else		{ st0=vec2(1,0); st1=vec2( 0,-1); offset=vec2(3,1); }
 	} else {
-			vec3 h;
-			uv = vec2(0,0);
-			if (subcase3){ st0=vec2(0,0); st1=vec2( 0,0); offset=vec2(0,0); }
-			else		{ st0=vec2(0,0); st1=vec2( 0,0); offset=vec2(0,0); } 
+			vec3 h = R/abs(R.z);
+			uv = vec2(h.x, h.y);
+			if (subcase3){ st0=vec2(-1,0); st1=vec2( 0,1); offset=vec2(7,3); }
+			else		{ st0=vec2(1,0); st1=vec2( 0,1); offset=vec2(3,3); } 
 	}
 
     // TODO: Create a 3x3 matrix m0, using Mat() function
@@ -57,12 +64,12 @@ void main( void )
     // The matrix maps locations on a face of the cube from [-1,1]x[-1,1]
     // to the appropriate cube map patch assuming coordinates range in [0,8]x[0,6] | total 3 points
 
-   mat3 m0;								
+   mat3 m0 = Mat(st0, st1, offset);								
 	
     // TODO: Create a 3x3 scaling matrix m1, using Scale() function,
     // such that coordinates are scaled to [1,0]x[0,1]; see below          | total 1 point
 
-    mat3 m1;
+    mat3 m1 = Scale(vec2(1.0/8.0,1.0/6.0));
 
     // Finally, compute etxture coordinates
     vec3 st = m1*m0*vec3(uv,1);
