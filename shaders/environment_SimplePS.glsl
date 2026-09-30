@@ -35,13 +35,21 @@ void main( void )
 	bool case1,case2;
 	bool subcase1, subcase2, subcase3;
 
-	case1 = (abs(R.x) >= abs(R.y)) && (abs(R.x) >= abs(R.z));
-	case2 = (abs(R.y) >= abs(R.z));
+	// The half-line from the origin in direction R leaves the unit cube
+	// through the face of the component with the largest absolute value.
+	case1 = (abs(R.x) >= abs(R.y)) && (abs(R.x) >= abs(R.z));  // face x = +-1
+	case2 = (abs(R.y) >= abs(R.z));  // face y = +-1 (x is not largest here); else face z = +-1
 
+	// The sign of that component selects the + or - face
 	subcase1 = (R.x >= 0);
 	subcase2 = (R.y >= 0);
 	subcase3 = (R.z >= 0);
-	
+
+	// In every case: h = R scaled such that its largest component is +-1
+	// (intersection with the cube face); uv are the other two components of h.
+	// st0/st1 are the directions of u/v in the cube map, read off from the
+	// axes in the test cube map. Offset is the centre of the face's 2x2 square
+	// in the 8x6 grid: (2*column+1, 2*row+1), counted from the bottom-left.
 	if (case1) {
 			vec3 h = R/abs(R.x);
 			uv = vec2(h.y, h.z);
@@ -64,11 +72,13 @@ void main( void )
     // The matrix maps locations on a face of the cube from [-1,1]x[-1,1]
     // to the appropriate cube map patch assuming coordinates range in [0,8]x[0,6] | total 3 points
 
+   // uv in [-1,1]^2 has side 2, as do the squares, so st0/st1 need no scaling
    mat3 m0 = Mat(st0, st1, offset);								
 	
     // TODO: Create a 3x3 scaling matrix m1, using Scale() function,
     // such that coordinates are scaled to [1,0]x[0,1]; see below          | total 1 point
 
+    // [0,8]x[0,6] becomes [0,1]x[0,1]
     mat3 m1 = Scale(vec2(1.0/8.0,1.0/6.0));
 
     // Finally, compute etxture coordinates
